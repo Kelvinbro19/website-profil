@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Website Data Diri - Login & Register</title>
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin:0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #eef2f7;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  /* Container for login/register forms */
+  #auth-container {
+    background: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    width: 360px;
+  }
+  #auth-container h2 {
+    margin-bottom: 1.5rem;
+    color: #0077cc;
+    text-align: center;
+  }
+  #auth-container label {
+    display: block;
+    margin: 0.8rem 0 0.3rem 0;
+    font-weight: 600;
+  }
+  #auth-container input[type="text"],
+  #auth-container input[type="password"],
+  #auth-container input[type="email"] {
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+    border: 1.8px solid #ccc;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  #auth-container input[type="text"]:focus,
+  #auth-container input[type="password"]:focus,
+  #auth-container input[type="email"]:focus {
+    border-color: #0077cc;
+    outline: none;
+  }
+  #auth-container button {
+    margin-top: 1.6rem;
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 1.1rem;
+    background-color: #0077cc;
+    color: white;
+    border:none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #auth-container button:hover {
+    background-color: #005fa3;
+  }
+  #auth-error {
+    margin-top: 1rem;
+    color: #d93025;
+    font-weight: 600;
+    text-align: center;
+  }
+  #auth-toggle {
+    margin-top: 1.2rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  #auth-toggle a {
+    color: #0077cc;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* Main container */
+  #main-app {
+    display: none;
+    height: 100vh;
+    width: 100vw;
+    background: #f5f9fc;
+  }
+  .app-wrapper {
+    display: flex;
+    height: 100%;
+  }
+  /* Sidebar */
+  nav.sidebar {
+    width: 240px;
+    background-color: #004a99;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    box-shadow: 3px 0 15px rgba(0,0,0,0.12);
+  }
+  nav.sidebar h2 {
+    font-weight: 700;
+    margin: 0 1.2rem 1.5rem 1.2rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #0077cc;
+    padding-bottom: 0.5rem;
+  }
+  nav.sidebar a {
+    color: white;
+    padding: 1rem 1.4rem;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.25s, border-left-color 0.25s;
+  }
+  nav.sidebar a:hover,
+  nav.sidebar a.active {
+    background: #0068d9;
+    border-left-color: #00baff;
+  }
+  nav.sidebar a.logout {
+    margin-top: auto;
+    background-color: #d93025;
+    font-weight: 700;
+    border-left-color: transparent !important;
+  }
+  nav.sidebar a.logout:hover {
+    background-color: #a0261b;
+  }
+
+  /* Content area */
+  main.content {
+    flex-grow: 1;
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+  }
+  main.content h1 {
+    color: #004a99;
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+  }
+  main.content section {
+    max-width: 720px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+    padding: 1.8rem 2.4rem;
+    margin-bottom: 1.8rem;
+  }
+  main.content section h2 {
+    color: #0077cc;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  main.content section p {
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+  /* Social links container */
+  .social-links {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1.6rem;
+    align-items: center;
+  }
+  .social-links a {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    color: #0077cc;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+  }
+  .social-links a:hover {
+    color: #005fa3;
+  }
+  /* Social icons */
+  svg.social-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+
+  /* Visitor log table */
+  table.visitor-log {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  table.visitor-log th,
+  table.visitor-log td {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+  table.visitor-log th {
+    background-color: #0077cc;
+    color: white;
+  }
+  table.visitor-log tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav.sidebar {
+      width: 100%;
+      height: auto;
+      flex-direction: row;
+      justify-content: space-around;
+    }
+    main.content {
+      padding: 1rem 1.2rem;
+    }
+    .app-wrapper {
+      flex-direction: column;
+    }
+    nav.sidebar a {
+      border-left: none !important;
+      border-bottom: 4px solid transparent;
+      padding: 0.75rem 0.5rem;
+      font-size: 0.9rem;
+    }
+    nav.sidebar a:hover,
+    nav.sidebar a.active {
+      border-bottom-color: #00baff;
+      background: #005ea1;
+    }
+  }
+  .hidden {
+    display: none;
+}
+
+</style>
+</head>
+<body>
+
+<!-- Auth container: login and register -->
+<div id="auth-container" role="main" aria-label="Authentication Forms">
+  <!-- Login form -->
+  <form id="login-form" novalidate style="display: block;" autocomplete="off" aria-describedby="auth-error">
+    <h2>Login Website</h2>
+    <label for="login-username">Username</label>
+    <input type="text" id="login-username" name="username" required autocomplete="username" aria-required="true" />
+    <label for="login-password">Password</label>
+    <input type="password" id="login-password" name="password" required autocomplete="current-password" aria-required="true" />
+    <button type="submit" aria-label="Login">Login</button>
+  </form>
+  <!-- Register form -->
+  <form id="register-form" novalidate style="display: none;" autocomplete="off" aria-describedby="auth-error">
+    <h2>Register Akun Baru</h2>
+    <label for="register-username">Username</label>
+    <input type="text" id="register-username" name="username" required autocomplete="username" aria-required="true" />
+    <label for="register-password">Password</label>
+    <input type="password" id="register-password" name="password" required autocomplete="new-password" aria-required="true" />
+    <label for="register-password-confirm">Konfirmasi Password</label>
+    <input type="password" id="register-password-confirm" name="password-confirm" required autocomplete="new-password" aria-required="true" />
+    <button type="submit" aria-label="Register">Register</button>
+  </form>
+  <div id="auth-error" role="alert" aria-live="assertive"></div>
+  <div id="auth-toggle">
+    <span id="toggle-text">Belum punya akun? </span><a href="#" id="toggle-link">Daftar di sini</a>
+  </div>
+</div>
+
+<!-- Main app container after login -->
+<div id="main-app" role="main" aria-label="Website Main Content">
+  <div class="app-wrapper">
+    <nav class="sidebar" aria-label="Primary Navigation">
+      <h2>Menu</h2>
+      <a href="#" class="menu-link active" data-section="profile" tabindex="0">Profil</a>
+      <a href="#" class="menu-link" data-section="about" tabindex="0">Tentang</a>
+      <a href="#" class="menu-link" data-section="contact" tabindex="0">Kontak</a>
+      <a href="#" class="menu-link" data-section="visitor-log" tabindex="0" id="pengunjung">Pengunjung</a>
+      <a href="#" class="logout" id="logout-btn" tabindex="0">Keluar</a>
+    </nav>
+    <main class="content" id="content-area" tabindex="0">
+      <!-- Content displayed here by JS -->
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  const authContainer = document.getElementById('auth-container');
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const authToggleText = document.getElementById('toggle-text');
+  const authToggleLink = document.getElementById('toggle-link');
+  const authError = document.getElementById('auth-error');
+
+  const mainApp = document.getElementById('main-app');
+  const contentArea = document.getElementById('content-area');
+  const menuLinks = document.querySelectorAll('.menu-link');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  // Fixed owner profile per request
+  const ownerProfile = {
+    name: "M.Kelvin.A.K",
+    title: "Web Developer & Game Developer",
+    bio: "pembuat web dan game",
+    phone: "+62 899-9038-928",
+    school: "kepo wkwk",
+    photo: "images.jpeg",
+    tiktok: {
+      username: "@k1ngv1nzz",
+      url: "https://www.tiktok.com/@k1ngv1nzz"
+    },
+    instagram: {
+      username: "@k31v1nzzz",
+      url: "https://www.instagram.com/k31v1nzzz"
+    }
+  };
+
+  // Retrieve users database from localStorage, map username to password
+  function getUserDB() {
+    const users = localStorage.getItem('usersDB');
+    if (users) {
+      try {
+        return JSON.parse(users);
+      } catch {
+        return {};
+      }
+    }
+    return {};
+  }
+
+  // Save users database to localStorage
+  function saveUserDB(users) {
+    localStorage.setItem('usersDB', JSON.stringify(users));
+  }
+
+  // Record a visitor's visit
+  function recordVisitor() {
+    let visitors = JSON.parse(localStorage.getItem('visitors-data')) || [];
+    let now = new Date().toLocaleString();
+    let userAgent = navigator.userAgent;
+    let id = Date.now() + '-' + Math.floor(Math.random() * 1000);
+
+    visitors.push({ id, time: now, userAgent });
+    if (visitors.length > 100) visitors = visitors.slice(-100);
+    localStorage.setItem('visitors-data', JSON.stringify(visitors));
+  }
+
+  // TikTok SVG icon
+  const tiktokIcon = `<svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M9 2a7 7 0 0 0 7 7h2.5a9.2 9.2 0 0 1-9.17-9v4.25a2.8 2.8 0 1 0 2.58 2.99V2Z"/></svg>`;
+
+  // Instagram SVG icon
+  const instagramIcon = `<svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M7.75 2A5.75 5.75 0 0 0 2 7.75v8.5A5.75 5.75 0 0 0 7.75 22h8.5A5.75 5.75 0 0 0 22 16.25v-8.5A5.75 5.75 0 0 0 16.25 2h-8.5Zm8.94 3.56a1.06 1.06 0 1 1 2.12 0 1.06 1.06 0 0 1-2.12 0Zm-4.59 1.64a4.12 4.12 0 1 1 0 8.24 4.12 4.12 0 0 1 0-8.24Zm0 1.8a2.32 2.32 0 1 0 0 4.64 2.32 2.32 0 0 0 0-4.64Z"/></svg>`;
+
+  // Render profile section
+  function renderProfile() {
+    return `
+      <section aria-label="Profile Information">
+        <h2>Profil Saya</h2>
+        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.2rem;">
+          <img src="${ownerProfile.photo}" alt="Foto profil ${ownerProfile.name}" style="width:120px; border-radius: 50%; border: 3px solid #0077cc;" />
+          <div>
+            <h3 style="margin: 0 0 0.4rem 0;">${ownerProfile.name}</h3>
+            <p style="margin: 0; font-weight: 600; color: #0077cc;">${ownerProfile.title}</p>
+            <p style="margin:0.3rem 0 0 0;"><strong>Sekolah:</strong> ${ownerProfile.school}</p>
+          </div>
+        </div>
+        <p>${ownerProfile.bio}</p>
+        <p><strong>Telepon:</strong> ${ownerProfile.phone}</p>
+        <div class="social-links" aria-label="Media Sosial">
+          <a href="${ownerProfile.tiktok.url}" target="_blank" rel="noopener noreferrer" aria-label="TikTok ${ownerProfile.tiktok.username}">
+            ${tiktokIcon} ${ownerProfile.tiktok.username}
+          </a>
+          <a href="${ownerProfile.instagram.url}" target="_blank" rel="noopener noreferrer" aria-label="Instagram ${ownerProfile.instagram.username}">
+            ${instagramIcon} ${ownerProfile.instagram.username}
+          </a>
+        </div>
+      </section>
+    `;
+  }
+
+  // Render about section
+  function renderAbout() {
+    return `
+      <section aria-label="About Website">
+        <h2>Tentang Website</h2>
+        <p>Website ini dibuat karena gabut pengen coding wkwk.</p>
+      </section>
+    `;
+  }
+
+  // Render contact section
+  function renderContact() {
+    return `
+      <section aria-label="Contact Information">
+        <h2>Kontak Saya</h2>
+        <p>Anda dapat menghubungi saya bila ada BUG atau yang lainnya melalui telepon di bawah ini.</p>
+        <ul>
+          <li>Telepon: <a href="tel:${ownerProfile.phone.replace(/[^\d+]/g, '')}">${ownerProfile.phone}</a></li>
+        </ul>
+      </section>
+    `;
+  }
+
+  // Render visitor log section
+  function renderVisitorLog() {
+    let visitors = JSON.parse(localStorage.getItem('visitors-data')) || [];
+    if (visitors.length === 0) {
+        return `
+            <section aria-label="Visitor Log">
+                <h2>Daftar Pengunjung</h2>
+                <p>Belum ada pengunjung yang terdaftar.</p>
+            </section>
+        `;
+    }
+    let rows = visitors.map((visitor, index) =>
+        `<tr class="visitor-row">
+            <td>${visitor.time}</td>
+            <td>${visitor.userAgent}</td>
+            <td><button class="delete-visitor" data-index="${index}">Hapus</button></td>
+        </tr>`).join('');
+    return `
+        <section aria-label="Visitor Log">
+            <h2>Daftar Pengunjung</h2>
+            <table class="visitor-log" aria-describedby="visitor-log-desc">
+                <caption id="visitor-log-desc" style="text-align:left; margin-bottom:0.75rem;">Waktu kunjungan dan informasi browser</caption>
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Informasi Browser</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        </section>
+    `;
+}
+
+contentArea.addEventListener('click', (e) => {
+    if (e.target.classList.contains('delete-visitor')) {
+        const index = e.target.getAttribute('data-index');
+        console.log("Hapus pengunjung dengan index:", index); // Debugging
+        if (confirm("Apakah Anda yakin ingin menghapus pengunjung ini dari tampilan?")) {
+            deleteVisitor(index); // Panggil fungsi hapus jika pengguna mengonfirmasi
+        }
+    }
+});
+
+function deleteVisitor(index) {
+    // Temukan baris yang sesuai dan sembunyikan
+    const rows = document.querySelectorAll('.visitor-row');
+    if (rows[index]) {
+        rows[index].classList.add('hidden'); // Tambahkan kelas 'hidden' untuk menyembunyikan baris
+    }
+}
+
+
+  // Render section based on menu click
+  function renderSection(section) {
+    switch(section) {
+      case 'profile': return renderProfile();
+      case 'about': return renderAbout();
+      case 'contact': return renderContact();
+      case 'visitor-log': return renderVisitorLog();
+      default: return '<p>Bagian tidak ditemukan.</p>';
+    }
+  }
+
+  // Show appropriate content area
+  function showSection(section) {
+    contentArea.innerHTML = renderSection(section);
+    // Update active menu link
+    menuLinks.forEach(link => {
+      if (link.dataset.section === section) {
+        link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.classList.remove('active');
+        link.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  // Toggle between login and register forms
+  function toggleAuthForms() {
+    authError.textContent = '';
+    if (loginForm.style.display === 'block') {
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'block';
+      authToggleText.textContent = 'Sudah punya akun? ';
+      authToggleLink.textContent = 'Login di sini';
+      registerForm.querySelector('input').focus();
+    } else {
+      registerForm.style.display = 'none';
+      loginForm.style.display = 'block';
+      authToggleText.textContent = 'Belum punya akun? ';
+      authToggleLink.textContent = 'Daftar di sini';
+      loginForm.querySelector('input').focus();
+    }
+  }
+
+  authToggleLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    toggleAuthForms();
+  });
+
+  // Login handler
+loginForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  authError.textContent = '';
+  const username = loginForm['username'].value.trim();
+  const password = loginForm['password'].value.trim();
+  
+  if (!username || !password) {
+    authError.textContent = 'Mohon isi username dan password.';
+    return;
+  }
+
+  // Cek jika username dan password adalah "Kelvin" dan "KelvinA22"
+  if (username === "Kelvin" && password === "KelvinA22") {
+    localStorage.setItem('loggedInUser ', username);
+    authContainer.style.display = 'none';
+    mainApp.style.display = 'flex';
+    showSection('profile');
+    contentArea.focus();
+  } else {
+    const users = getUserDB();
+    if (users[username] && users[username] === password) {
+      localStorage.setItem('loggedInUser ', username);
+      authContainer.style.display = 'none';
+      mainApp.style.display = 'flex';
+      showSection('profile');
+      contentArea.focus();
+    } else {
+      authError.textContent = 'Username atau password salah.';
+    }
+  }
+});
+
+// Render section based on menu click
+function renderSection(section) {
+  switch(section) {
+    case 'profile': return renderProfile();
+    case 'about': return renderAbout();
+    case 'contact': return renderContact();
+    case 'visitor-log':
+      const loggedInUser  = localStorage.getItem('loggedInUser ');
+      if (loggedInUser  === "Kelvin") {
+        return renderVisitorLog();
+      } else {
+        document.getElementById('pengunjung').style.display = 'none';
+        return '<p>Akses ditolak. Hanya ADMIN atau DEVELOPER yang dapat melihat log pengunjung.</p>';
+      }
+    default: return '<p>Bagian tidak ditemukan.</p>';
+  }
+}
+
+// On page load
+function init() {
+  recordVisitor();
+  const loggedInUser  = localStorage.getItem('loggedInUser ');
+  if (loggedInUser ) {
+    const users = getUserDB();
+    if (users[loggedInUser ] || loggedInUser  === "Kelvin") {
+      authContainer.style.display = 'none';
+      mainApp.style.display = 'flex';
+      showSection('profile');
+      return;
+    }
+    localStorage.removeItem('loggedInUser ');
+  }
+  authContainer.style.display = 'block';
+  mainApp.style.display = 'none';
+  loginForm.querySelector('input').focus();
+}
+
+
+  // Register handler
+  registerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    authError.textContent = '';
+    const username = registerForm['username'].value.trim();
+    const password = registerForm['password'].value.trim();
+    const passwordConfirm = registerForm['password-confirm'].value.trim();
+
+    if (!username || !password || !passwordConfirm) {
+      authError.textContent = 'Mohon isi semua kolom.';
+      return;
+    }
+    if (password !== passwordConfirm) {
+      authError.textContent = 'Password dan konfirmasi password tidak sama.';
+      return;
+    }
+
+    const users = getUserDB();
+    if (users[username]) {
+      authError.textContent = 'Username sudah digunakan, pilih yang lain.';
+      return;
+    }
+
+    users[username] = password;
+    saveUserDB(users);
+
+    alert('Registrasi berhasil! Silakan login dengan akun baru Anda.');
+    toggleAuthForms();
+  });
+
+  // Logout handler
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.removeItem('loggedInUser');
+    authContainer.style.display = 'block';
+    mainApp.style.display = 'none';
+    authError.textContent = '';
+    loginForm.reset();
+    registerForm.reset();
+    loginForm.querySelector('input').focus();
+  });
+
+  // Menu click handler
+  menuLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      showSection(link.dataset.section);
+      contentArea.focus();
+    });
+  });
+
+  // On page load
+  function init() {
+    recordVisitor();
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    if (loggedInUser) {
+      const users = getUserDB();
+      if (users[loggedInUser]) {
+        authContainer.style.display = 'none';
+        mainApp.style.display = 'flex';
+        showSection('profile');
+        return;
+      }
+      localStorage.removeItem('loggedInUser');
+    }
+    authContainer.style.display = 'block';
+    mainApp.style.display = 'none';
+    loginForm.querySelector('input').focus();
+  }
+
+  init();
+
+})();
+</script>
+
+</body>
+</html>
+
